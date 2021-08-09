@@ -74,7 +74,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers("/api/login/**").antMatchers("/api/token/refresh/**");
+		web.ignoring().antMatchers("/api/token/refresh/**");
 
 	}
 }

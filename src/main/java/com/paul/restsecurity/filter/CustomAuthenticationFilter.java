@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +23,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paul.restsecurity.util.JWTUtils;
+import com.paul.restsecurity.util.ResponseUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,19 +55,19 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		String accessToken = JWTUtils.createAccessToken(user, request);
 		String refreshToken = JWTUtils.createRefreshToken(user, request);
 		// pass token in header
-		//response.setHeader("access_token", accessToken);
-		//response.setHeader("refresh_token", refreshToken);
+		// response.setHeader("access_token", accessToken);
+		// response.setHeader("refresh_token", refreshToken);
+
 		// pass token in body
 		Map<String, String> tokens = JWTUtils.createTokenMap(accessToken, refreshToken);
-		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
-	}
+		ResponseUtils.ReplyOk(response, tokens);
+		}
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException failed) throws IOException, ServletException {
 		log.error("Failed unsuccessfulAuthentication");
-
+		ResponseUtils.ReplyError(response, "Failed to authenticate user", HttpStatus.UNAUTHORIZED);
 	}
 
 }

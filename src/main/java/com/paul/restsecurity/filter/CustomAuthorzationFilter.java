@@ -22,8 +22,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paul.restsecurity.dto.JWTTokenUserInfo;
 import com.paul.restsecurity.util.AppConstants;
 import com.paul.restsecurity.util.JWTUtils;
+import com.paul.restsecurity.util.ResponseUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,25 +42,17 @@ public class CustomAuthorzationFilter extends OncePerRequestFilter {
 			if (null != authorzationHeader && authorzationHeader.startsWith(AppConstants.BEARER)) {
 				try {
 					String token = authorzationHeader.substring(AppConstants.BEARER.length());
-					DecodedJWT decodeJWT = JWTUtils.validateJWTToken(token);
-					String username = decodeJWT.getSubject();
-					String[] roles = decodeJWT.getClaims().get(AppConstants.ROLES).asArray(String.class);
-
+					JWTTokenUserInfo jwtTokenUserInfo = JWTUtils.JWTTokenInfo(token);
 					Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-					Arrays.asList(roles).stream().forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
+					Arrays.asList(jwtTokenUserInfo.getRoles()).stream()
+							.forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
 					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-							username, null, authorities);
+							jwtTokenUserInfo.getUsername(), null, authorities);
 					SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 					filterChain.doFilter(request, response);
 				} catch (Exception ex) {
 					log.error("Error log in {} ", ex.getMessage());
-					response.setHeader("error", ex.getMessage());
-					response.setStatus(HttpStatus.FORBIDDEN.value());
-					// response.sendError(HttpStatus.FORBIDDEN.value());
-					Map<String, String> error = new HashMap<>();
-					error.put("error_message", ex.getMessage());
-					response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-					new ObjectMapper().writeValue(response.getOutputStream(), error);
+					ResponseUtils.ReplyError(response, "Failed to authenticate user", HttpStatus.FORBIDDEN);
 				}
 			} else {
 				filterChain.doFilter(request, response);

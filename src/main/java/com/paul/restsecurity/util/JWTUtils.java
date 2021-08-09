@@ -1,11 +1,14 @@
 package com.paul.restsecurity.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +18,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.paul.restsecurity.domain.AppUser;
 import com.paul.restsecurity.domain.Role;
+import com.paul.restsecurity.dto.JWTTokenUserInfo;
 
 @Component
 public class JWTUtils {
@@ -25,6 +29,7 @@ public class JWTUtils {
 		return verifier.verify(token);
 
 	}
+
 	public static DecodedJWT validateBearerJWTToken(String bearer) {
 		String token = bearer.substring(AppConstants.BEARER.length());
 		return verifier.verify(token);
@@ -63,6 +68,17 @@ public class JWTUtils {
 		tokens.put("access_token", accessToken);
 		tokens.put("refresh_token", refreshToken);
 		return tokens;
+	}
+
+	public static JWTTokenUserInfo JWTTokenInfo(String token) {
+		DecodedJWT decodeJWT = JWTUtils.validateJWTToken(token);
+		String username = decodeJWT.getSubject();
+		String[] roles = decodeJWT.getClaims().get(AppConstants.ROLES).asArray(String.class);
+		JWTTokenUserInfo userInfo = new JWTTokenUserInfo();
+		userInfo.setRoles(roles);
+		userInfo.setUsername(username);
+		return userInfo;
+
 	}
 
 }
