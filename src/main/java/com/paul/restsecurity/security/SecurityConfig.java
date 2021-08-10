@@ -77,4 +77,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers("/api/token/refresh/**");
 
 	}
+/*
+	@Override
+	protected UserDetailsService userDetailsService() {
+		// TODO Auto-generated method stub
+		return userDetailsService;
+	}
+	*/
 }

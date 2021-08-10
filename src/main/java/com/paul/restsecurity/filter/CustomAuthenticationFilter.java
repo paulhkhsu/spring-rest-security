@@ -22,20 +22,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paul.restsecurity.repo.AppUserRepo;
 import com.paul.restsecurity.util.JWTUtils;
 import com.paul.restsecurity.util.ResponseUtils;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-
+@RequiredArgsConstructor
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
 
-	public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
-	}
+	//public CustomAuthenticationFilter(AuthenticationManager authenticationManager) {
+	//	this.authenticationManager = authenticationManager;
+	//}
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
